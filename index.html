@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wild Cucumber Clicker</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: "Segoe UI", sans-serif;
+      margin-top: 50px;
+      background-color: #f4f9f4;
+      color: #333;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body::before {
+      content: "🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒 🥒";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      font-size: 4rem;
+      line-height: 1.5;
+      color: rgba(0, 0, 0, 0.05);
+      text-align: center;
+      white-space: pre-wrap;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    #clickable {
+      width: 200px;
+      max-width: 90vw;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.3s;
+      opacity: 0.95;
+      user-select: none;
+      display: inline-block;
+    }
+    #clickable:active {
+      transform: scale(0.95);
+    }
+
+    #count {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-top: 20px;
+      user-select: none;
+    }
+
+    #store {
+      margin-top: 30px;
+      background: #ffffffcc;
+      padding: 20px;
+      display: inline-block;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 320px;
+    }
+
+    button {
+      background: #d5e8d4;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      max-width: 280px;
+      user-select: none;
+    }
+    button:hover:not(:disabled) {
+      background: #c2d6c1;
+      transform: scale(1.02);
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #farmsOwned {
+      margin-top: 10px;
+      font-style: italic;
+      user-select: none;
+    }
+
+    .floating-text {
+      position: absolute;
+      font-weight: bold;
+      color: green;
+      animation: floatUp 1s ease-out forwards;
+      pointer-events: none;
+      user-select: none;
+      font-size: 1.3em;
+      text-shadow: 0 0 3px #b0f2b0;
+      white-space: nowrap;
+      transform: translate(-50%, 0);
+    }
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -40px);
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        margin-top: 20px;
+      }
+      #store {
+        width: 90%;
+        padding: 15px;
+      }
+      button {
+        font-size: 1.1em;
+        padding: 14px;
+        margin: 8px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="clickable" aria-label="Wild Cucumber" role="button" tabindex="0">
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 120 300" 
+      width="200" height="500" 
+      style="display:block; margin: 0 auto;"
+      >
+      <defs>
+        <radialGradient id="cukeGrad" cx="50%" cy="40%" r="70%">
+          <stop offset="0%" stop-color="#a1d884"/>
+          <stop offset="60%" stop-color="#70a843"/>
+          <stop offset="100%" stop-color="#4d722d"/>
+        </radialGradient>
+        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#234d16" flood-opacity="0.5"/>
+        </filter>
+      </defs>
+      <ellipse cx="60" cy="150" rx="50" ry="140" fill="url(#cukeGrad)" filter="url(#shadow)" />
+      <path fill="none" stroke="#385a18" stroke-width="3" d="
+        M 20 50 
+        Q 30 60 40 45
+        T 70 60 
+        Q 80 80 70 110 
+        T 40 140
+        Q 25 160 35 190
+        T 65 220 
+        Q 80 250 60 270
+      " />
+      <!-- Small seeds -->
+      <circle cx="50" cy="90" r="3" fill="#d9f1c2" opacity="0.7" />
+      <circle cx="70" cy="130" r="3" fill="#d9f1c2" opacity="0.7" />
+      <circle cx="55" cy="170" r="3" fill="#d9f1c2" opacity="0.7" />
+      <circle cx="70" cy="210" r="3" fill="#d9f1c2" opacity="0.7" />
+      <circle cx="60" cy="250" r="3" fill="#d9f1c2" opacity="0.7" />
+    </svg>
+  </div>
+
+  <div id="count">Clicks: 0</div>
+
+  <div id="store">
+    <h2>Store</h2>
+    <button id="buyDoubleClick">Buy x2 Clicks (50 clicks)</button><br><br>
+    <button id="buyTripleClick">Buy x3 Clicks (100 clicks)</button><br><br>
+    <button id="buyFarm">Buy Cucumber Farm (350 clicks)</button><br><br>
+    <button id="buyWorkers" style="display:none;">Hire Farm Workers (200 clicks)</button><br><br>
+    <button id="buyLicense" style="display:none;">Buy Farm License (700 clicks)</button><br><br>
+    <button id="buyUltraClick">Buy UltraClick (1500 clicks)</button>
+    <div id="farmsOwned">Farms Owned: 0</div>
+  </div>
+
+  <script>
+    let count = 0;
+    let clickMultiplier = 1;
+    let farms = 0;
+    let farmOutputMultiplier = 1;
+    let workersHired = false;
+    let farmLimit = 3;
+    let licenseBought = false;
+    let ultraClickBought = false;
+
+    const clickable = document.getElementById('clickable');
+    const countDisplay = document.getElementById('count');
+    const buyDoubleClickBtn = document.getElementById('buyDoubleClick');
+    const buyTripleClickBtn = document.getElementById('buyTripleClick');
+    const buyFarmBtn = document.getElementById('buyFarm');
+    const buyWorkersBtn = document.getElementById('buyWorkers');
+    const buyLicenseBtn = document.getElementById('buyLicense');
+    const buyUltraClickBtn = document.getElementById('buyUltraClick');
+    const farmsOwnedDisplay = document.getElementById('farmsOwned');
+
+    clickable.addEventListener('click', (event) => {
+      let gained = clickMultiplier;
+      if (ultraClickBought && Math.random() < 0.03) {
+        gained += 1000;
+      }
+      count += gained;
+      spawnFloatingText("+" + gained, event);
+      updateDisplay();
+      updateStore();
+    });
+
+    clickable.addEventListener('keydown', (event) => {
+      if(event.key === 'Enter' || event.key === ' ') {
+        clickable.click();
+        event.preventDefault();
+      }
+    });
+
+    function spawnFloatingText(text, event) {
+      const floating = document.createElement("div");
+      floating.className = "floating-text";
+      floating.textContent = text;
+      document.body.appendChild(floating);
+
+      const x = event.pageX || window.innerWidth / 2;
+      const y = event.pageY || window.innerHeight / 2;
+
+      floating.style.left = x + "px";
+      floating.style.top = y + "px";
+
+      setTimeout(() => floating.remove(), 1000);
+    }
+
+    buyDoubleClickBtn.onclick = () => {
+      if (count >= 50 && clickMultiplier < 2) {
+        count -= 50;
+        clickMultiplier = 2;
+        buyDoubleClickBtn.disabled = true;
+        buyDoubleClickBtn.textContent = "x2 Clicks Purchased!";
+        updateDisplay();
+        updateStore();
+      }
+    };
+
+    buyTripleClickBtn.onclick = () => {
+      if (count >= 100 && clickMultiplier < 3) {
+        count -= 100;
+        clickMultiplier = 3;
+        buyTripleClickBtn.disabled = true;
+        buyTripleClickBtn.textContent = "x3 Clicks Purchased!";
+        updateDisplay();
+        updateStore();
+      }
+    };
+
+    buyFarmBtn.onclick = () => {
+      if (count >= 350 && (farms < farmLimit || licenseBought)) {
+        count -= 350;
+        farms += 1;
+        updateDisplay();
+        updateStore();
+        if (farms === 1) {
+          buyWorkersBtn.style.display = "inline-block";
+          buyLicenseBtn.style.display = "inline-block";
+        }
+      }
+    };
+
+    buyWorkersBtn.onclick = () => {
+      if (count >= 200 && !workersHired) {
+        count -= 200;
+        farmOutputMultiplier = 2;
+        workersHired = true;
+        buyWorkersBtn.disabled = true;
+        buyWorkersBtn.textContent = "Workers Hired!";
+        updateDisplay();
+        updateStore();
+      }
+    };
+
+    buyLicenseBtn.onclick = () => {
+      if (count >= 700 && !licenseBought) {
+        count -= 700;
+        licenseBought = true;
+        farmLimit = Infinity;
+        buyLicenseBtn.disabled = true;
+        buyLicenseBtn.textContent = "Farm License Purchased!";
+        updateDisplay();
+        updateStore();
+      }
+    };
+
+    buyUltraClickBtn.onclick = () => {
+      if (count >= 1500 && !ultraClickBought) {
+        count -= 1500;
+        ultraClickBought = true;
+        buyUltraClickBtn.disabled = true;
+        buyUltraClickBtn.textContent = "UltraClick Purchased!";
+        updateDisplay();
+        updateStore();
+      }
+    };
+
+    setInterval(() => {
+      if (farms > 0) {
+        count += farms * farmOutputMultiplier;
+        updateDisplay();
+        updateStore();
+      }
+    }, 1000);
+
+    function updateDisplay() {
+      countDisplay.textContent = `Clicks: ${count}`;
+      farmsOwnedDisplay.textContent = `Farms Owned: ${farms}`;
+    }
+
+    function updateStore() {
+      buyDoubleClickBtn.disabled = count < 50 || clickMultiplier >= 2;
+      buyTripleClickBtn.disabled = count < 100 || clickMultiplier >= 3;
+      buyFarmBtn.disabled = count < 350 || (!licenseBought && farms >= farmLimit);
+      buyWorkersBtn.disabled = count < 200 || workersHired;
+      buyLicenseBtn.disabled = count < 700 || licenseBought;
+      buyUltraClickBtn.disabled = count < 1500 || ultraClickBought;
+    }
+  </script>
+</body>
+</html>
